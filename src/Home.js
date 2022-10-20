@@ -31,7 +31,7 @@ function Home() {
   }, [policy]);
   return (
     <div style={{padding:50, alignItems:"center"}}>
-      <p style={{fontSize:20, fontWeight:"bold", padding:30}}>View Dowell Policies</p>
+      <p style={{fontSize:20, fontWeight:"bold", padding:30}}>View Legalzard Policies</p>
       <div style={{flex:"row"}}>
         <p>Get</p>
         <div>
