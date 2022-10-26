@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "/legalapitest/static/js/main.8eb60676.js",
+    "main.js": "/legalapitest/static/js/main.176917f1.js",
     "index.html": "/legalapitest/index.html",
-    "main.8eb60676.js.map": "/legalapitest/static/js/main.8eb60676.js.map"
+    "main.176917f1.js.map": "/legalapitest/static/js/main.176917f1.js.map"
   },
   "entrypoints": [
-    "static/js/main.8eb60676.js"
+    "static/js/main.176917f1.js"
   ]
 }
