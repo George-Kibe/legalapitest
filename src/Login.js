@@ -1,12 +1,15 @@
 import React, {useState, useEffect} from 'react'
 import jwt_decode from "jwt-decode";
 import {GrCheckboxSelected, GrCheckbox} from "react-icons/gr"
+import axios from 'axios'
 
-function Login() {
+
+const Login = () =>  {
   const [checked, setChecked] = useState(false);
   const currentURL = window.location.href
   const strings = currentURL.split("?token=")
   const token = strings[1] 
+  const [appWebData, setAppWebData] = useState([])
 
   //form input stattes
   const [platform, setPlatform] = useState("");
@@ -21,57 +24,74 @@ function Login() {
   const [contactPage, setContactPage] = useState("");
   const [updateDate, setUpdateDate] = useState("");
   const [jurisdiction, setJurisdiction] = useState("");
-  const [cancelDays, setCancelDays] = useState("");
-  const [reimburseDays, setReimburseDays] = useState("");
+  const [cancelDays, setCancelDays] = useState(0);
+  const [reimburseDays, setReimburseDays] = useState(0);
   const [message, setMessage] = useState("");
     
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage("Creating!")
-    try {
-      const res = await fetch("https://100087.pythonanywhere.com/api/legalpolicies", {
-        method: "POST",
-        mode:'no-cors', 
-        credentials: 'include',
-        headers: {Accept: 'application/json'},
-        body: JSON.stringify({
-            platform_type:platform,
-            app_or_website_or_service_name:name,
-            app_or_website_or_service_url:serviceUrl,
-            description:description,
-            company_name:companyName,
-            company_address:address,
-            company_registration_number:registrationNo,
-            company_country:country,
-            contact_email_id:contactEmail,
-            website_contact_page_url:contactPage,
-            last_update_date:updateDate,
-            app_or_website_governed_by_or_jurisdiction:jurisdiction,
-            days_allowed_for_cancellation_of_order_or_product: cancelDays,
-            reimburse_days: reimburseDays,
-        }),
-      });
-    } catch (err) {
-      console.log(err);
-      setMessage(err)
+    setMessage(`Creating ${platform} Details in Database!`)
+    const app_or_service =  {
+        platform_type:platform,
+        app_or_website_or_service_name:name,
+        app_or_website_or_service_url:serviceUrl,
+        description:description,
+        company_name:companyName,
+        company_address:address,
+        company_registration_number:registrationNo,
+        company_country:country,
+        contact_email_id:contactEmail,
+        website_contact_page_url:contactPage,
+        last_update_date:updateDate,
+        app_or_website_governed_by_or_jurisdiction:jurisdiction,
+        days_allowed_for_cancellation_of_order_or_product: cancelDays,
+        reimburse_days: reimburseDays,
     }
-  };
+    try {
+      const res = await axios.post("https://100087.pythonanywhere.com/api/legalpolicies/", app_or_service);
+      console.log(res)
+      const platform_type = res.data.data[0].policies_api.platform_type
+      const event_id = res.data.data[0].eventId
+      console.log(platform_type)
+      console.log(event_id)
+      setMessage(`${platform_type} details created successfully! Event id:${event_id}`)
+        
+    }catch (error){
+        alert(error)
+        console.log(error)
+    }
+  }
+  const getPolicies = async () => {
+    try{
+        const response = await axios.get("https://100087.pythonanywhere.com/api/legalpolicies/")
+        //console.log(response)
+        setAppWebData(response.data.data)
+        
+    }catch(error){
+        console.log(error)
+    }
+  }
+
   useEffect(() => {
     if(!token){
+        getPolicies()
         return
     }
     const decoded = jwt_decode(token);
     console.log(decoded.isSuccess)
+    setChecked(decoded.isSuccess)
   }, [token])
+
+  console.log(appWebData)
   
   return (
     <div style={{padding:30}}>
-        <h1>Register an APP/Website</h1>
+        <h1>Register {platform ? platform : "APP/Website"}</h1>
         <form onSubmit={handleSubmit}>
             <div>
             <p>Platform</p>
             <select id = "dropdown" onChange={(e) => setPlatform(e.target.value)}>
-                <option value="N/A">Select Platform</option>
+                <option value="APP/Website">Select Platform</option>
                 <option value="App">App</option>
                 <option value="Website">Website</option>
             </select>
@@ -155,16 +175,16 @@ function Login() {
                 />
             </div>
             
-            <button type="submit">Register {platform}</button>  
+            <button type="submit">Register {platform ? platform : null}</button>  
 
-            <div className="message">{message ? {message} : null}</div>          
+            <div className="message"><p>{message ? message : null}</p></div>          
         </form>        
         <h1>Sample website content</h1> 
         <div style={{margin:10}}>
             {
                 checked? <GrCheckboxSelected /> :<GrCheckbox />
             }                     
-            <a style={{margin:10}} href='https://100087.pythonanywhere.com/policy/FB1010000000001665306290565391/website-privacy-policy/?redirect_url=http://localhost:3000/legalapitest/'>
+            <a style={{margin:10}} href='https://100087.pythonanywhere.com/policy/FB1010000000001665306290565391/website-privacy-policy/?redirect_url=https://george-kibe.github.io/legalapitest/'>
                 I agree with to the privacy policy and terms and conditions
             </a>
         </div>
@@ -173,5 +193,6 @@ function Login() {
     </div>
   )
 }
+
 
 export default Login
